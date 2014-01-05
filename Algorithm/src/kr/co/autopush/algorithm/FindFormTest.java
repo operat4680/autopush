@@ -17,7 +17,7 @@ public class FindFormTest {
 	public static String url = "http://builder.hufs.ac.kr/user/popupLogin.action?siteId=hufs&returnUrl=/user/indexFrame.action?framePath=div2_row_1.jsp&siteId=hufs&leftPage=&rightPage=08.html";
 	
 	public static void main(String[] args) {
-	//test youngwook
+	//test youngwook2
 		FindForm form = new FindForm(url);
 		form.find();
 	}
