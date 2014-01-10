@@ -60,7 +60,7 @@ public class FindForm {
 					+ findFormByPasswd(elements.get(0)).attr("name"));
 
 			data.setLoginUrl(formUrl);
-			data.setFormPath(getResultPath(findFormByPasswd(elements.get(0))));
+			data.setFormPath(getPath(findFormByPasswd(elements.get(0))));
 			data.setFormIdPath(getResultName(findTagByPasswd(elements.get(0))));
 			data.setFormPasswdPath(getResultName(elements.get(0)));
 
@@ -140,12 +140,27 @@ public class FindForm {
 		Element temp = e;
 		while (!(temp.tagName().equals("body"))) {
 			if (!temp.id().equals("")) {
-				result = temp.tagName() + "[id=" + temp.id() + "]/" + result;
+				if(result.equals("")){
+					result = temp.tagName() + "#" + temp.id();
+				}
+				else{
+					result = temp.tagName() + "#" + temp.id()+" "+result;
+				}
+				break;
 			} else if (!temp.className().equals("")) {
-				result = temp.tagName() + "[class=" + temp.className() + "]/"
-						+ result;
+				if(result.equals("")){
+					result = temp.tagName() + "." + temp.className();
+				}
+				else{
+					result = temp.tagName() + "." + temp.className() + " "+result;
+				}
 			} else {
-				result = temp.tagName() + "/" + result;
+				if(result.equals("")){
+				result = temp.tagName() + result;
+				}
+				else{
+					result = temp.tagName() +" "+ result;
+				}
 			}
 			temp = temp.parent();
 		}
@@ -153,16 +168,6 @@ public class FindForm {
 
 	}
 
-	public String getResultPath(Element e) {
-		if (e.id() != null && !e.id().equals("")) {
-			return e.id();
-		} else if (e.attr("name") != null && !e.attr("name").equals("")) {
-			return e.attr("name");
-		} else {
-			return getPath(e);
-		}
-
-	}
 
 	public String getResultName(Element e) {
 		if (e.attr("name") != null && !e.attr("name").equals("")) {
