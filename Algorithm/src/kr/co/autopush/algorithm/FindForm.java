@@ -1,6 +1,9 @@
 package kr.co.autopush.algorithm;
+
 import java.io.IOException;
 import java.util.ArrayList;
+
+import kr.co.autopush.bean.LoginData;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,130 +12,163 @@ import org.jsoup.select.Elements;
 
 public class FindForm {
 
-	
 	private ArrayList<String> urlList;
 	public String url;
 
-	public FindForm(String url){
+	public FindForm(String url) {
 		this.url = url;
 		urlList = new ArrayList<String>();
 	}
-	
-	public void find(){
-		Document doc=null;
-		
+
+	public LoginData getLoginData() {
+		Document doc = null;
+		String formUrl = this.url;
+		LoginData data = new LoginData();
 		try {
-		doc = Jsoup.connect(url).get();
-		//System.out.println(doc.html());
-		
-		Elements elements = doc.getElementsByAttributeValue("type", "password");
-		if(elements.isEmpty()){
-			elements = doc.select("iframe");
-			if(!elements.isEmpty()){
-				insertUrlList(elements);
-				for(String iurl : urlList){
-					doc = Jsoup.connect(iurl).get();
-					elements = doc.getElementsByAttributeValue("type", "password");
-					if(!elements.isEmpty()){
-						break;
+			doc = Jsoup.connect(url).get();
+			// System.out.println(doc.html());
+
+			Elements elements = doc.getElementsByAttributeValue("type",
+					"password");
+			if (elements.isEmpty()) {
+				elements = doc.select("iframe");
+				if (!elements.isEmpty()) {
+					insertUrlList(elements);
+					for (String iurl : urlList) {
+						doc = Jsoup.connect(iurl).get();
+						elements = doc.getElementsByAttributeValue("type",
+								"password");
+						if (!elements.isEmpty()) {
+							formUrl = iurl;
+							break;
+						}
 					}
 				}
+
 			}
-			
-		}
-		if(elements.isEmpty()){
-			return;
-		}
-		getChildNodeInfo(elements.get(0));
-		System.out.println(elements.get(0).attr("name"));
-		getChildNodeInfo(findTagByPasswd(elements.get(0)));
-		System.out.println((findTagByPasswd(elements.get(0))).attr("name"));
-		getChildNodeInfo(findFormByPasswd(elements.get(0)));
-		System.out.println(findFormByPasswd(elements.get(0)).attr("name"));
-		System.out.println("form name : "+findFormByPasswd(elements.get(0)).attr("name") );
-		}catch (IOException e1) {
+			if (elements.isEmpty()) {
+				return null;
+			}
+
+			getChildNodeInfo(elements.get(0));
+			System.out.println(elements.get(0).attr("name"));
+			getChildNodeInfo(findTagByPasswd(elements.get(0)));
+			System.out.println((findTagByPasswd(elements.get(0))).attr("name"));
+			getChildNodeInfo(findFormByPasswd(elements.get(0)));
+			System.out.println(findFormByPasswd(elements.get(0)).attr("name"));
+			System.out.println("form name : "
+					+ findFormByPasswd(elements.get(0)).attr("name"));
+
+			data.setLoginUrl(formUrl);
+			data.setFormPath(getResultPath(findFormByPasswd(elements.get(0))));
+			data.setFormIdPath(getResultName(findTagByPasswd(elements.get(0))));
+			data.setFormPasswdPath(getResultName(elements.get(0)));
+
+			return data;
+		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		return null;
 	}
-	
-	public void insertUrlList(Elements list) throws IOException{
-		for(Element e : list){
-			String iurl = e.attr("src");	
-			String subUrl="";
-			if(!iurl.startsWith("http")){
+
+	public void insertUrlList(Elements list) throws IOException {
+		for (Element e : list) {
+			String iurl = e.attr("src");
+			String subUrl = "";
+			if (!iurl.startsWith("http")) {
 				String[] subList = url.split("/");
-				subUrl = subList[0]+"//"+subList[2];
+				subUrl = subList[0] + "//" + subList[2];
 			}
-			urlList.add(subUrl+iurl);
-			System.out.println(subUrl+iurl);
-			Document doc = Jsoup.connect(subUrl+iurl).get();
+			urlList.add(subUrl + iurl);
+			System.out.println(subUrl + iurl);
+			Document doc = Jsoup.connect(subUrl + iurl).get();
 			Elements elements = doc.select("iframe");
-			if(!elements.isEmpty()){
+			if (!elements.isEmpty()) {
 				insertUrlList(elements);
 			}
 		}
 	}
-	public Element findFormByPasswd(Element e){
+
+	public Element findFormByPasswd(Element e) {
 		Element temp = e;
-		while(!(temp.tagName().equals("form"))){
+		while (!(temp.tagName().equals("form"))) {
 			temp = temp.parent();
 		}
 		return temp;
 	}
-	public Element findTagByPasswd(Element e){
-		Element temp= e;
+
+	public Element findTagByPasswd(Element e) {
+		Element temp = e;
 		Elements target;
-		Element result =null;
+		Element result = null;
 		boolean isFind = false;
-		do{
+		do {
 			result = null;
 			target = temp.siblingElements();
-			for(Element ele : target){
-				if(isFind){
+			for (Element ele : target) {
+				if (isFind) {
 					break;
 				}
 				Elements in = ele.getElementsByTag("input");
-				for(Element m : in){
-					if(m.tagName().equals("input")&&(m.attr("type").equals("text"))){
+				for (Element m : in) {
+					if (m.tagName().equals("input")
+							&& (m.attr("type").equals("text"))) {
 						result = m;
-						isFind=true;
+						isFind = true;
 						break;
 					}
 				}
 			}
-			temp = temp.parent();	
-		}while(result==null);
-		
-		
+			temp = temp.parent();
+		} while (result == null);
+
 		return result;
 	}
-	
-	public void getChildNodeInfo(Element e){
-			System.out.println("-------");
-			System.out.println("path : "+getPath(e));
-			System.out.println("size : "+e.children().size());
-			System.out.println("tag name: "+ e.tagName());
-			System.out.println("id : "+e.id());
-			System.out.println("class : "+e.className());
-		
+
+	public void getChildNodeInfo(Element e) {
+		System.out.println("-------");
+		System.out.println("path : " + getPath(e));
+		System.out.println("size : " + e.children().size());
+		System.out.println("tag name: " + e.tagName());
+		System.out.println("id : " + e.id());
+		System.out.println("class : " + e.className());
+
 	}
-	public String getPath(Element e){
-		String result ="";
+
+	public String getPath(Element e) {
+		String result = "";
 		Element temp = e;
-		while(!(temp.tagName().equals("body"))){
-			if(!temp.id().equals("")){
-				result = temp.tagName()+"[id="+temp.id()+"]/"+result;
-			}
-			else if(!temp.className().equals("")){
-				result = temp.tagName()+"[class="+temp.className()+"]/"+result;
-			}
-			else{
-				result = temp.tagName()+"/"+result;
+		while (!(temp.tagName().equals("body"))) {
+			if (!temp.id().equals("")) {
+				result = temp.tagName() + "[id=" + temp.id() + "]/" + result;
+			} else if (!temp.className().equals("")) {
+				result = temp.tagName() + "[class=" + temp.className() + "]/"
+						+ result;
+			} else {
+				result = temp.tagName() + "/" + result;
 			}
 			temp = temp.parent();
 		}
 		return result;
-		
+
+	}
+
+	public String getResultPath(Element e) {
+		if (e.id() != null && !e.id().equals("")) {
+			return e.id();
+		} else if (e.attr("name") != null && !e.attr("name").equals("")) {
+			return e.attr("name");
+		} else {
+			return getPath(e);
+		}
+
+	}
+
+	public String getResultName(Element e) {
+		if (e.attr("name") != null && !e.attr("name").equals("")) {
+			return e.attr("name");
+		}
+		return "";
 	}
 
 }
