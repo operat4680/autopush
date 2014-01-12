@@ -27,14 +27,17 @@ public class FindForm {
 		try {
 			doc = Jsoup.connect(url).get();
 			// System.out.println(doc.html());
-
+			System.out.println(doc.html());
 			Elements elements = doc.getElementsByAttributeValue("type",
 					"password");
 			if (elements.isEmpty()) {
 				elements = doc.select("iframe");
-				if (!elements.isEmpty()) {
+				Elements elements2 = doc.select("frame");
+				if (!elements.isEmpty()||!elements2.isEmpty()){
 					insertUrlList(elements);
+					insertUrlList(elements2);
 					for (String iurl : urlList) {
+						System.out.println(iurl);
 						doc = Jsoup.connect(iurl).get();
 						elements = doc.getElementsByAttributeValue("type",
 								"password");
@@ -71,20 +74,40 @@ public class FindForm {
 		return null;
 	}
 
-	public void insertUrlList(Elements list) throws IOException {
+	public void insertUrlList(Elements list) {
 		for (Element e : list) {
+			Document doc = null;
 			String iurl = e.attr("src");
 			String subUrl = "";
 			if (!iurl.startsWith("http")) {
 				String[] subList = url.split("/");
 				subUrl = subList[0] + "//" + subList[2];
 			}
+			if(!iurl.startsWith("/")){
+				iurl = "/"+iurl;
+			}
+			if(iurl.startsWith("./")){
+				iurl.replace("./", "/");
+			}
 			urlList.add(subUrl + iurl);
 			System.out.println(subUrl + iurl);
-			Document doc = Jsoup.connect(subUrl + iurl).get();
-			Elements elements = doc.select("iframe");
-			if (!elements.isEmpty()) {
-				insertUrlList(elements);
+			try{
+				doc = Jsoup.connect(subUrl + iurl).get();
+			}catch(Exception et){
+				System.out.println("connect error : "+subUrl + iurl);
+			}
+			if(doc!=null){
+				System.out.println("in");
+				Elements elements = doc.select("iframe");
+				
+				if (!elements.isEmpty()) {
+					insertUrlList(elements);
+				}
+				Elements elements2 = doc.select("frame");
+				if (!elements2.isEmpty()) {
+					
+					insertUrlList(elements2);
+				}
 			}
 		}
 	}
@@ -148,11 +171,12 @@ public class FindForm {
 				}
 				break;
 			} else if (!temp.className().equals("")) {
+				String name = temp.className().split(" ")[0];
 				if(result.equals("")){
-					result = temp.tagName() + "." + temp.className();
+					result = temp.tagName() + "." + name;
 				}
 				else{
-					result = temp.tagName() + "." + temp.className() + " "+result;
+					result = temp.tagName() + "." + name + " "+result;
 				}
 			} else {
 				if(result.equals("")){
