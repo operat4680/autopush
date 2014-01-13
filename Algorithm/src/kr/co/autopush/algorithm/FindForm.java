@@ -26,15 +26,16 @@ public class FindForm {
 		LoginData data = new LoginData();
 		try {
 			doc = Jsoup.connect(url).get();
-			// System.out.println(doc.html());
-			System.out.println(doc.html());
+			
 			Elements elements = doc.getElementsByAttributeValue("type",
 					"password");
+			
 			if (elements.isEmpty()) {
-				elements = doc.select("iframe");
+				Elements elements1 = doc.select("iframe");
 				Elements elements2 = doc.select("frame");
-				if (!elements.isEmpty()||!elements2.isEmpty()){
-					insertUrlList(elements);
+				if (!elements1.isEmpty()||!elements2.isEmpty()){
+					System.out.println("in");
+					insertUrlList(elements1);
 					insertUrlList(elements2);
 					for (String iurl : urlList) {
 						System.out.println(iurl);
@@ -75,29 +76,37 @@ public class FindForm {
 	}
 
 	public void insertUrlList(Elements list) {
+		System.out.println(list.size());
 		for (Element e : list) {
 			Document doc = null;
 			String iurl = e.attr("src");
+			
+			if(iurl.equals("")||iurl.equals("about:blank")){
+				continue;
+			}
 			String subUrl = "";
-			if (!iurl.startsWith("http")) {
+			if (!iurl.startsWith("http")&&!iurl.startsWith("https")) {
 				String[] subList = url.split("/");
 				subUrl = subList[0] + "//" + subList[2];
+				if(!iurl.startsWith("/")){
+					iurl = "/"+iurl;
+				}
+				if(iurl.startsWith("./")){
+					iurl.replace("./", "/");
+				}
 			}
-			if(!iurl.startsWith("/")){
-				iurl = "/"+iurl;
+			if(check(subUrl+iurl)){
+				urlList.add(subUrl + iurl);
 			}
-			if(iurl.startsWith("./")){
-				iurl.replace("./", "/");
+			else{
+				continue;
 			}
-			urlList.add(subUrl + iurl);
-			System.out.println(subUrl + iurl);
 			try{
 				doc = Jsoup.connect(subUrl + iurl).get();
 			}catch(Exception et){
 				System.out.println("connect error : "+subUrl + iurl);
 			}
 			if(doc!=null){
-				System.out.println("in");
 				Elements elements = doc.select("iframe");
 				
 				if (!elements.isEmpty()) {
@@ -110,6 +119,15 @@ public class FindForm {
 				}
 			}
 		}
+	}
+
+	private boolean check(String string) {
+		for(String u : urlList){
+			if(u.equals(string)){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Element findFormByPasswd(Element e) {

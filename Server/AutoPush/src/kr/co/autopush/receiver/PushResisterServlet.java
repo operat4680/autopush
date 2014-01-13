@@ -29,7 +29,7 @@ public class PushResisterServlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			ProcessBuilder pb = null;
 			List<String> command = new ArrayList<String>();
-			if(request.getParameter("url")!=null&& !request.getParameter("url").equals("")){
+			if(request.getParameter("url")!=null&& !request.getParameter("url").equals("")&&request.getParameter("pwd")!=null&&!request.getParameter("pwd").equals("")){
 					FindForm form = new FindForm(request.getParameter("url"));
 					LoginData data = form.getLoginData();
 					if(data!=null){
@@ -64,11 +64,11 @@ public class PushResisterServlet extends HttpServlet {
 						}
 						proc.destroy();
 						long end = System.currentTimeMillis();
-						System.out.println( "실행 시간 : " + ( end - start )/1000.0 );
+						System.out.println( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
 					}
 			}
 			request.setAttribute("loginimg", "http://211.189.127.143/AutoPush/image/1.jpg");
-			RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("index2.jsp");
 			dispatcher.forward(request, response);
 			
 		} catch (Exception e) {

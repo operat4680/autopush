@@ -37,7 +37,7 @@ casper.then(function() {
     this.echo(param.url + ' '+ param.imgPath+ ' '+ param.loginURL + ' '+ param.idPath+' '+ param.passwdPath+' '+ param.id + ' '+ param.pwd);
     values[param.idPath] = param.id;
     values[param.passwdPath] = param.pwd;
-    this.echo(values['id']+','+values['pw']);
+    this.echo(values[param.idPath]+','+values[param.passwdPath]);
     this.fill(param.formPath, values, true);
 });
 
@@ -50,7 +50,7 @@ casper.waitFor(function check() {
 
 });
 
-casper.thenOpen(param.url);
+// casper.thenOpen(param.url);
 
 casper.then(function() {
     this.echo('capture location is ' + this.getCurrentUrl());
@@ -60,5 +60,9 @@ casper.then(function() {
         quality: 75
    });
    this.echo("Saved screenshot of " + (this.getCurrentUrl()) + " to " + filename);
+   this.echo(this.getTitle());
 });
+
+
+
 casper.run();
