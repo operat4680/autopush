@@ -79,28 +79,6 @@ public class APFilter {
 		return visibleChilren;
 	}
 	
-	public static ArrayList<String> getIframeUrl(Element elem) {
-		ArrayList<String> frameList = new ArrayList<String>();
-		
-		Elements iframes = elem.getElementsByTag("iframe");
-		for(Element iframe : iframes) {
-			String tempUrl = iframe.attr("src");			
-			if(tempUrl.equals("") || tempUrl.startsWith("about")) continue;
-			else if(tempUrl.contains("http") || tempUrl.contains("https")) frameList.add(tempUrl);
-			else frameList.add(TestMain.url+tempUrl+"/");			
-		}		
-		Elements frames = elem.getElementsByTag("frame");
-		for(Element frame : frames) {
-			String tempUrl = frame.attr("src");
-			System.out.println(">>> " + tempUrl);
-			if(tempUrl.equals("") || tempUrl.startsWith("about")) continue;
-			else if(tempUrl.contains("http") || tempUrl.contains("https")) frameList.add(tempUrl);
-			else frameList.add(TestMain.url+tempUrl+"/");			
-		}	
-		
-		return frameList;
-	}
-	
 	public static String textFilter(String str) {
 		/*
 		 * 1. remove numerical text
