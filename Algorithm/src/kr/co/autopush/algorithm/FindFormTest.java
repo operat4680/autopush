@@ -12,7 +12,7 @@ import org.jsoup.select.Elements;
 public class FindFormTest {
 
 	
-	public static String url = "http://home.mju.ac.kr/board/boardList.action?boardId=1991604&target=home&tab=board1991604&siteId=bongbong";
+//	public static String url = "http://home.mju.ac.kr/board/boardList.action?boardId=1991604&target=home&tab=board1991604&siteId=bongbong";
 //	public static String url = "https://sso.mju.ac.kr/swift/login/login_eclass.jsp?RSP=eclass.mju.ac.kr&RelayState=/home/index.action?siteId=bongbong";
 //	public static String url = "https://www.facebook.com/";
 //	public static String url = "http://www.daum.net";
@@ -20,10 +20,10 @@ public class FindFormTest {
 //	public static String url = "https://github.com/login";
 //	public static String url = "http://prena.co.kr/main.htm";
 //	public static String url = "https://twitter.com/";
-	
+//	public static String url = "http://gall.dcinside.com/board/lists/?id=toy&s_type=search_all&s_keyword=%ED%95%9C%EA%B8%80";
 //	public static String url = "http://portal.ajou.ac.kr/public/portalLogin.jsp";
 //	public static String url = "http://builder.hufs.ac.kr/user/popupLogin.action?siteId=hufs&returnUrl=/user/indexFrame.action?framePath=div2_row_1.jsp&siteId=hufs&leftPage=&rightPage=08.html";
-//	public static String url = "http://www.naver.com";
+	public static String url = "http://static.nid.naver.com/login.nhn?svc=me&url=http%3A%2F%2Fwww.naver.com&t=20120425";
 	public static void main(String[] args) {
 	
 		FindForm form = new FindForm(url);

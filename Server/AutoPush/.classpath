@@ -9,5 +9,8 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="D:/Tomcat7.0/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/org.json-20120521.jar"/>
+	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/mongo-java-driver-2.11.4.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

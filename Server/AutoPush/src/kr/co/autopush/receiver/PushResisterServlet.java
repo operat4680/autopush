@@ -7,16 +7,24 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.co.autopush.algorithm.APTableDetector;
 import kr.co.autopush.algorithm.FindForm;
+import kr.co.autopush.algorithm.FrameFilter;
 import kr.co.autopush.bean.LoginData;
 import kr.co.autopush.constant.Constant;
+import kr.co.autopush.db.MongoDAO;
+import kr.co.autopush.util.StreamGobbler;
+
+import org.json.JSONObject;
+
+import com.mongodb.BasicDBList;
+import com.mongodb.DBObject;
 
 @WebServlet("/PushResist")
 public class PushResisterServlet extends HttpServlet {
@@ -24,58 +32,131 @@ public class PushResisterServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		try {
+			boolean flag=false;
 			request.setCharacterEncoding("UTF-8");
+			response.setCharacterEncoding("UTF-8");
 			PrintWriter out = response.getWriter();
-			ProcessBuilder pb = null;
+		try {
+			JSONObject json=null;
 			List<String> command = new ArrayList<String>();
-			if(request.getParameter("url")!=null&& !request.getParameter("url").equals("")&&request.getParameter("pwd")!=null&&!request.getParameter("pwd").equals("")){
-					FindForm form = new FindForm(request.getParameter("url"));
-					LoginData data = form.getLoginData();
-					if(data!=null){
-						command.add(Constant.CASPERROOT);
-						command.add(Constant.SCRIPTPATH);
-						command.add("\""+request.getParameter("url").replace("%", "%%")+"\"");
-						command.add(Constant.IMAGEPATH);
-						command.add(("\""+data.getLoginUrl()+"\"").replace("%", "%%"));
-						command.add(data.getFormPath());
-						command.add(data.getFormIdPath());
-						command.add(data.getFormPasswdPath());
-						command.add(request.getParameter("id"));
-						command.add(request.getParameter("pwd"));
-						System.out.println(command.toString());
-						
-						long start = System.currentTimeMillis();
-						pb = new ProcessBuilder(command);
-						Process proc = pb.start();
-						InputStream errorOutput = new BufferedInputStream(proc.getErrorStream(), 10000);
-						InputStream consoleOutput = new BufferedInputStream(proc.getInputStream(), 10000);
-						int exitCode = proc.waitFor();
-						int ch;
-						System.out.println("Errors:");
-						while ((ch = errorOutput.read() ) != -1) {
-						    System.out.print((char) ch);
-						}
-			
-						System.out.println("Output:");
-						while ((ch = consoleOutput.read()) != -1) {
-						    System.out.print((char) ch);
-							
-						}
-						proc.destroy();
-						long end = System.currentTimeMillis();
-						System.out.println( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
-					}
+			StringBuilder param = new StringBuilder();
+			String s;
+			while((s = request.getReader().readLine())!=null)param.append(s);
+			System.out.println(param.toString());
+			if(param!=null){
+				json = new JSONObject(param.toString());
+				System.out.println("login : "+json.getBoolean("login"));
 			}
-			request.setAttribute("loginimg", "http://211.189.127.143/AutoPush/image/1.jpg");
-			RequestDispatcher dispatcher = request.getRequestDispatcher("index2.jsp");
-			dispatcher.forward(request, response);
+			
+			if(json!=null){
+					FrameFilter filter = new FrameFilter(json.getString("targetURL"));
+					System.out.println(filter.getUrlListToJson());
+					command.add(Constant.CASPERROOT);
+					command.add(Constant.SLIMERENGINE);
+					command.add(Constant.SCRIPTPATH);
+//					command.add("\""+filter.getUrlListToJson().replace("\"", "\\\"")+"\"");
+//					command.add(filter.getUrlListToJson().replace("\"", "\\\"").replace("%", "%%"));
+					command.add(filter.getUrlListToJson().replace("\"", "\\\"-_-"));
+//					command.add(filter.getUrlListToJson());
+					command.add(Constant.RECEIVERURL);
+					command.add("not");
+					if(json.getBoolean("login")){
+						FindForm form = new FindForm(json.getString("formURL"));
+						LoginData data = form.getLoginData();
+						if(data!=null){
+							command.add(("\""+data.getLoginUrl()+"\""));
+							command.add(data.getFormPath());
+							command.add(data.getFormIdPath());
+							command.add(data.getFormPasswdPath());
+							command.add(json.getString("id"));
+							command.add(json.getString("pwd"));
+						}
+					}
+					System.out.println(command.toString());
+					
+					runProcess(command);
+					
+					saveCaptureImage();
+					
+					if(testData()){
+						flag=true;
+					}
+					else{
+						flag=false;
+					}
+					flag=true;
+			}
+			
+//			request.setAttribute("loginimg", "http://211.189.127.143/AutoPush/image/1.jpg");
+//			RequestDispatcher dispatcher = request.getRequestDispatcher("index2.jsp");
+//			dispatcher.forward(request, response);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			out.write("error");
+			out.flush();
 		}
+		if(flag)out.write("success");
+		out.flush();
+		
 
+	}
+	public void saveCaptureImage() throws Exception{
+		DBObject obj = MongoDAO.getTempData();
+		APTableDetector detector = new APTableDetector(obj.toString());
+		String candidateList = detector.analyse();
+		JSONObject json = new JSONObject();
+		json.put("targetUrl", obj.get("targetUrl"));
+		List<String> command = new ArrayList<String>();
+		command.add(Constant.CASPERROOT);
+		command.add(Constant.SLIMERENGINE);
+		command.add(Constant.SCRIPTPATH);
+		System.out.println("capture Path:"+json.toString());
+//		command.add(json.toString().replace("%", "%%").replace("\"", "\\\""));
+		command.add(json.toString().replace("\"", "\\\"-_-"));
+		command.add(Constant.RECEIVERURL);
+//		command.add(candidateList.toString().replace("%", "%%").replace("\"", "\\\"").replace(" ","|"));
+		command.add(candidateList.toString().replace("\"", "\\\"-_-").replace(" ","|"));
+		if(obj.get("loginURL")!=null){
+				LoginData data = new LoginData(obj);
+				command.add(("\""+data.getLoginUrl()+"\"").replace("%", "%%"));
+				command.add(data.getFormPath());
+				command.add(data.getFormIdPath());
+				command.add(data.getFormPasswdPath());
+				command.add(data.getId());
+				command.add(data.getPasswd());
+		}
+		
+		System.out.println(candidateList);
+		runProcess(command);
+	}
+	private void runProcess(List<String> command) throws Exception{
+		long start = System.currentTimeMillis();
+		Runtime rt = Runtime.getRuntime();
+		Process proc = rt.exec(command.toArray(new String[command.size()]));
+
+		StreamGobbler error = new StreamGobbler(proc.getErrorStream());
+		StreamGobbler console = new StreamGobbler(proc.getInputStream());
+		error.run();
+		console.run();
+//		proc.getErrorStream().close();
+//		proc.getInputStream().close();
+//		proc.getOutputStream().close();
+	
+		int exitCode = proc.waitFor();
+		
+		
+		proc.destroy();
+		long end = System.currentTimeMillis();
+		System.out.println( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
+	}
+	private boolean testData(){
+		System.out.println("in");
+		if(MongoDAO.getTempImage().get("imgList")==null){
+			return false;
+		}
+		return true;
 	}
 
 }

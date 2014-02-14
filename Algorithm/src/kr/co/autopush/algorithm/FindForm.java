@@ -25,7 +25,7 @@ public class FindForm {
 		String formUrl = this.url;
 		LoginData data = new LoginData();
 		try {
-			doc = Jsoup.connect(url).get();
+			doc = Jsoup.connect(url).header("Referer","http://www.naver.com").userAgent("Mozilla").get();
 			
 			Elements elements = doc.getElementsByAttributeValue("type",
 					"password");
