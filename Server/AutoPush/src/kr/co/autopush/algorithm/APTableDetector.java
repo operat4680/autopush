@@ -12,10 +12,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-
 
 public class APTableDetector {
 	private ArrayList<String> urlList;
@@ -49,19 +45,24 @@ public class APTableDetector {
     	for(int i=0;i<elementList.size();i++){
 	        ArrayList<Element> resList = new ArrayList<Element>();
 	        StringBuilder pathList = new StringBuilder();
-	        for(Element node : elementList.get(i)) {        	
-	        	if(node.tagName().equals("body")) continue;        	
-	            if(node.children().size() >= C.CHILD_MIN_COUNT ) {
-	                float lval = LPatternAlg.getValue(node);
-	                float tval = TPatternAlg.getValue(node);                
-	                float result = lval + tval;              
-	                if(result > 1.5)
-	                    resList.add(node);
+	        for(Element node : elementList.get(i)) {
+	        	String tag = node.tagName();
+	        	if(tag.equals("body")) continue;        	
+	            if(APFilter.getVisibleChildren(node).size() >= C.CHILD_MIN_COUNT ) {
+	            	if(tag.equals("ul") || tag.equals("tbody") 
+	                || tag.equals("thead") || tag.equals("ol"))
+	            	{	
+	                	if(APTableTagProcessor.hasText(node))
+	                		resList.add(node);
+	                } else {
+	                	if(APTreeArchiProcessor.isPossiblySameTree(node))
+	            			resList.add(node);
+	                }
 	            }
 	        }
+	        
 	        if(resList.size()!=0){
-	        	System.out.println("in~~~~"+urlList.get(i) );
-		        resList = Filter.filtering(resList);        
+	        	System.out.println("in~~~~"+urlList.get(i) );		             
 		        for(Element node : resList) {            
 		        	  pathList.append(getPath(node)+",");
 		        }
@@ -137,60 +138,3 @@ public class APTableDetector {
 	}
 }
 
-class Filter {
-    public static ArrayList<Element> filtering(ArrayList<Element> elems) {
-        ArrayList<Element> res = new ArrayList<Element>();
-        for(Element elem : elems){            
-            int sameNodes = 0;
-            String selectors[] = new String[3];
-            selectors[0] = elem.id();
-            selectors[1] = elem.className().split(" ")[0];
-            selectors[2] = getParentPath(elem);
-//            System.out.println(">> " +elem.tagName() + " <> " + selectors[2]);
-            
-            for(int i = 0 ; i < elems.size(); i++) {                    
-                if(selectors[2].equals(getParentPath(elems.get(i))))
-                    sameNodes++;
-            }
-            
-            if(sameNodes < C.SPAM_LIMIT)
-                res.add(elem);
-        }
-        return res;
-    }
-
-    public static String getParentPath(Element e) {
-        String result = "";
-        Element temp = e.parent();
-        for(int i = 0; i < 2 && temp.parent() != null; i++) {
-            if(!temp.id().equals("")) {
-                if(result.equals("")) {
-                	result = temp.tagName() +"#"+temp.id();
-                } else {
-                	result = temp.tagName()+"#"+temp.id()+" "+result;
-                }                    
-                break;
-            } else if(!temp.className().equals("")) {
-                String name = temp.className().split(" ")[0];
-                int index =	temp.elementSiblingIndex();
-				String str = index==0?"":":nth-child("+(index+1)+")";
-                if(result.equals("")) {
-                    result = temp.tagName()+"."+name + str;
-                } else {
-                    result = temp.tagName()+"."+name + str + " "+result;
-                }
-            } else {
-            	int index =	temp.elementSiblingIndex();
-				String str = index==0?"":":nth-child("+(index+1)+")";
-            	 if(result.equals("")){
-                     result = temp.tagName() + str + result;
-                 } else{
-                     result = temp.tagName() + str +" "+ result;
-                 }                
-            }
-            temp = temp.parent();
-        }
-        return result;
-    }
-    
-}
