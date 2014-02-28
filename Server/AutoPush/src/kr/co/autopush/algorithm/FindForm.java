@@ -62,12 +62,14 @@ public class FindForm {
 			System.out.println(findFormByPasswd(elements.get(0)).attr("name"));
 			System.out.println("form name : "
 					+ findFormByPasswd(elements.get(0)).attr("name"));
-
+			System.out.println(getPath(elements.get(0)));
+			
 			data.setLoginUrl(formUrl);
 			data.setFormPath(getPath(findFormByPasswd(elements.get(0))));
 			data.setFormIdPath(getResultName(findTagByPasswd(elements.get(0))));
 			data.setFormPasswdPath(getResultName(elements.get(0)));
-
+			data.setpPath(getPath(elements.get(0)));
+			
 			return data;
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -176,39 +178,40 @@ public class FindForm {
 
 	}
 
-//	public String getPath(Element e) {
-//		String result = "";
-//		Element temp = e;
-//		while (!(temp.tagName().equals("body"))) {
-//			if (!temp.id().equals("")) {
-//				if(result.equals("")){
-//					result = temp.tagName() + "#" + temp.id();
-//				}
-//				else{
-//					result = temp.tagName() + "#" + temp.id()+" "+result;
-//				}
-//				break;
-//			} else if (!temp.className().equals("")) {
-//				String name = temp.className().split(" ")[0];
-//				if(result.equals("")){
-//					result = temp.tagName() + "." + name;
-//				}
-//				else{
-//					result = temp.tagName() + "." + name + " "+result;
-//				}
-//			} else {
-//				if(result.equals("")){
-//				result = temp.tagName() + result;
-//				}
-//				else{
-//					result = temp.tagName() +" "+ result;
-//				}
-//			}
-//			temp = temp.parent();
-//		}
-//		return result;
-//
-//	}
+	public String getPath2(Element e) {
+		String result = "";
+		Element temp = e;
+		while (!(temp.tagName().equals("body"))) {
+			if (!temp.id().equals("")) {
+				if (result.equals("")) {
+					result = temp.tagName() + "#" + temp.id();
+				} else {
+					result = temp.tagName() + "#" + temp.id() + " " + result;
+				}
+				break;
+			} else if (!temp.className().equals("")) {
+				String name = temp.className().split(" ")[0];
+				int index =	temp.elementSiblingIndex();
+				String i = index==0?"":":nth-child("+(index+1)+")";
+				if (result.equals("")) {					
+					result = temp.tagName() + "." + name + i;
+				} else {
+					result = temp.tagName() + "." + name + i + " " + result;
+				}
+			} else {
+				int index =	temp.elementSiblingIndex();
+				String i = index==0?"":":nth-child("+(index+1)+")";
+				if (result.equals("")) {
+					result = temp.tagName() + i + result;
+				} else {
+					result = temp.tagName() + i + " " + result;
+				}
+			}
+			temp = temp.parent();
+		}
+		return result;
+
+	}
 	public String getPath(Element e) {
 		String result = "";
 		Element temp = e;

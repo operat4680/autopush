@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/org.json-20120521.jar"/>
 	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/mongo-java-driver-2.11.4.jar"/>
+	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/gcm-server.jar"/>
+	<classpathentry kind="lib" path="D:/github/Server/AutoPush/WebContent/WEB-INF/lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

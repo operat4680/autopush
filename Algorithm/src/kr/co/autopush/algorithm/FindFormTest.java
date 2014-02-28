@@ -23,7 +23,7 @@ public class FindFormTest {
 //	public static String url = "http://gall.dcinside.com/board/lists/?id=toy&s_type=search_all&s_keyword=%ED%95%9C%EA%B8%80";
 //	public static String url = "http://portal.ajou.ac.kr/public/portalLogin.jsp";
 //	public static String url = "http://builder.hufs.ac.kr/user/popupLogin.action?siteId=hufs&returnUrl=/user/indexFrame.action?framePath=div2_row_1.jsp&siteId=hufs&leftPage=&rightPage=08.html";
-	public static String url = "http://static.nid.naver.com/login.nhn?svc=me&url=http%3A%2F%2Fwww.naver.com&t=20120425";
+	public static String url = "http://www.dotal.or.kr/";
 	public static void main(String[] args) {
 	
 		FindForm form = new FindForm(url);

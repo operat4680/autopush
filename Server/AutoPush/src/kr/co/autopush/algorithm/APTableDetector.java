@@ -2,7 +2,10 @@ package kr.co.autopush.algorithm;
 
 
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+
+import kr.co.autopush.util.FileWriteUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,11 +23,13 @@ public class APTableDetector {
 	public APTableDetector(String list) throws JSONException{
 		JSONObject obj = new JSONObject(list);
 		JSONArray array= obj.getJSONArray("htmlData");
+		FileWriteUtil.write(array.toString());
 		urlList= new ArrayList<String>();
 		elementList = new ArrayList<Elements>();
 		for(int i=0;i<array.length();i++){
-			urlList.add(array.getJSONObject(i).getString("url"));
+
 			elementList.add(getDocument(array.getJSONObject(i).getString("html")));
+			urlList.add(array.getJSONObject(i).getString("url"));
 		}
 		urlArray = new JSONArray();
 	}
@@ -35,8 +40,7 @@ public class APTableDetector {
 
 		Elements contents = elems.get(0).getAllElements();
 		
-		contents.select("head").remove();
-		contents.select("script").remove();
+//		contents.select("head").remove();
 		return contents;
 	}
 
@@ -62,8 +66,9 @@ public class APTableDetector {
 	        }
 	        
 	        if(resList.size()!=0){
-	        	System.out.println("in~~~~"+urlList.get(i) );		             
-		        for(Element node : resList) {            
+	        	System.out.println("result length : "+ resList.size());
+		        for(Element node : resList) {
+		        	  
 		        	  pathList.append(getPath(node)+",");
 		        }
 		        pathList.deleteCharAt(pathList.length()-1);

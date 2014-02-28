@@ -10,6 +10,10 @@
       <param-name>shutdown-on-unload</param-name>
       <param-value>true</param-value>
     </init-param>
+    <init-param>  
+        <param-name>config-file</param-name>  
+        <param-value>quartz.properties</param-value>  
+    </init-param>  
     <init-param>
          <param-name>wait-on-shutdown</param-name>
          <param-value>true</param-value>
@@ -18,8 +22,8 @@
   </servlet>
   
   <servlet>
-    <servlet-name>TestSchedulerServlet</servlet-name>
-    <servlet-class>kr.co.autopush.scheduler.TestSchedulerServlet</servlet-class>
+    <servlet-name>PushSchedulerServlet</servlet-name>
+    <servlet-class>kr.co.autopush.scheduler.PushSchedulerServlet</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
  </web-app>  

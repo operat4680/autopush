@@ -27,7 +27,7 @@ public class APTreeArchiProcessor {
 		
 		sum = n > 0 ? sum/n : 0;
 		
-		if(sum > 0.8) return true;
+		if(sum > C.TREESIMIRARYTY) return true;
 		return false;
 	}
 }

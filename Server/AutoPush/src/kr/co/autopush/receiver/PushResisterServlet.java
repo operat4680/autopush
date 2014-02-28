@@ -20,6 +20,7 @@ import kr.co.autopush.bean.LoginData;
 import kr.co.autopush.constant.Constant;
 import kr.co.autopush.db.MongoDAO;
 import kr.co.autopush.util.StreamGobbler;
+import kr.co.autopush.util.UserException;
 
 import org.json.JSONObject;
 
@@ -28,7 +29,8 @@ import com.mongodb.DBObject;
 
 @WebServlet("/PushResist")
 public class PushResisterServlet extends HttpServlet {
-
+	
+	private String userId;
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -46,6 +48,7 @@ public class PushResisterServlet extends HttpServlet {
 			if(param!=null){
 				json = new JSONObject(param.toString());
 				System.out.println("login : "+json.getBoolean("login"));
+				userId = json.getString("userId");
 			}
 			
 			if(json!=null){
@@ -53,6 +56,7 @@ public class PushResisterServlet extends HttpServlet {
 					System.out.println(filter.getUrlListToJson());
 					command.add(Constant.CASPERROOT);
 					command.add(Constant.SLIMERENGINE);
+					command.add(Constant.IGNORE);
 					command.add(Constant.SCRIPTPATH);
 //					command.add("\""+filter.getUrlListToJson().replace("\"", "\\\"")+"\"");
 //					command.add(filter.getUrlListToJson().replace("\"", "\\\"").replace("%", "%%"));
@@ -60,14 +64,18 @@ public class PushResisterServlet extends HttpServlet {
 //					command.add(filter.getUrlListToJson());
 					command.add(Constant.RECEIVERURL);
 					command.add("not");
+					command.add(userId);
 					if(json.getBoolean("login")){
 						FindForm form = new FindForm(json.getString("formURL"));
 						LoginData data = form.getLoginData();
+						if(data.validate())throw new UserException("Login Form Not Found");
 						if(data!=null){
-							command.add(("\""+data.getLoginUrl()+"\""));
-							command.add(data.getFormPath());
+							data.print();
+							command.add(("\\\""+data.getLoginUrl()+"\\\""));
+							command.add("\\\""+data.getFormPath()+"\\\"");
 							command.add(data.getFormIdPath());
 							command.add(data.getFormPasswdPath());
+							command.add(data.getpPath());
 							command.add(json.getString("id"));
 							command.add(json.getString("pwd"));
 						}
@@ -76,7 +84,7 @@ public class PushResisterServlet extends HttpServlet {
 					
 					runProcess(command);
 					
-					saveCaptureImage();
+//					saveCaptureImage();
 					
 					if(testData()){
 						flag=true;
@@ -91,11 +99,15 @@ public class PushResisterServlet extends HttpServlet {
 //			RequestDispatcher dispatcher = request.getRequestDispatcher("index2.jsp");
 //			dispatcher.forward(request, response);
 			
-		} catch (Exception e) {
+			
+		} 
+		catch(UserException e){
+			out.write("loginFail");
+		}
+		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			out.write("error");
-			out.flush();
 		}
 		if(flag)out.write("success");
 		out.flush();
@@ -103,9 +115,9 @@ public class PushResisterServlet extends HttpServlet {
 
 	}
 	public void saveCaptureImage() throws Exception{
-		DBObject obj = MongoDAO.getTempData();
-		APTableDetector detector = new APTableDetector(obj.toString());
-		String candidateList = detector.analyse();
+		DBObject obj = MongoDAO.getTempData(userId);
+//		APTableDetector detector = new APTableDetector(obj.toString());
+//		String candidateList = detector.analyse();
 		JSONObject json = new JSONObject();
 		json.put("targetUrl", obj.get("targetUrl"));
 		List<String> command = new ArrayList<String>();
@@ -113,22 +125,21 @@ public class PushResisterServlet extends HttpServlet {
 		command.add(Constant.SLIMERENGINE);
 		command.add(Constant.SCRIPTPATH);
 		System.out.println("capture Path:"+json.toString());
-//		command.add(json.toString().replace("%", "%%").replace("\"", "\\\""));
 		command.add(json.toString().replace("\"", "\\\"-_-"));
 		command.add(Constant.RECEIVERURL);
-//		command.add(candidateList.toString().replace("%", "%%").replace("\"", "\\\"").replace(" ","|"));
-		command.add(candidateList.toString().replace("\"", "\\\"-_-").replace(" ","|"));
+//		command.add(candidateList.toString().replace("\"", "\\\"-_-").replace(" ","|"));
+		command.add(userId);
 		if(obj.get("loginURL")!=null){
 				LoginData data = new LoginData(obj);
-				command.add(("\""+data.getLoginUrl()+"\"").replace("%", "%%"));
-				command.add(data.getFormPath());
+				data.print();
+				command.add(("\\\""+data.getLoginUrl()+"\\\""));
+				command.add("\\\""+data.getFormPath()+"\\\"");
 				command.add(data.getFormIdPath());
 				command.add(data.getFormPasswdPath());
 				command.add(data.getId());
 				command.add(data.getPasswd());
 		}
 		
-		System.out.println(candidateList);
 		runProcess(command);
 	}
 	private void runProcess(List<String> command) throws Exception{
@@ -140,20 +151,15 @@ public class PushResisterServlet extends HttpServlet {
 		StreamGobbler console = new StreamGobbler(proc.getInputStream());
 		error.run();
 		console.run();
-//		proc.getErrorStream().close();
-//		proc.getInputStream().close();
-//		proc.getOutputStream().close();
-	
+		
 		int exitCode = proc.waitFor();
-		
-		
 		proc.destroy();
 		long end = System.currentTimeMillis();
 		System.out.println( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
 	}
 	private boolean testData(){
 		System.out.println("in");
-		if(MongoDAO.getTempImage().get("imgList")==null){
+		if(MongoDAO.getTempImage(userId).get("imgList")==null){
 			return false;
 		}
 		return true;

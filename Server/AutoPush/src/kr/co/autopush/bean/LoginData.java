@@ -3,28 +3,39 @@ package kr.co.autopush.bean;
 import com.mongodb.DBObject;
 
 public class LoginData {
-	private String loginUrl;
-	private String formIdPath;
-	private String formPasswdPath;
-	private String formPath;
-	private String id;
+	private String loginUrl="";
+	private String formIdPath="";
+	private String formPasswdPath="";
+	private String formPath="";
+	private String id="";
+	private String passwd="";
+	private String pPath;
+	public String getpPath() {
+		return pPath;
+	}
+	public void setpPath(String pPath) {
+		this.pPath = pPath;
+	}
 	public String getId() {
 		return id;
 	}
 	public String getPasswd() {
 		return passwd;
 	}
-
-
-
-	private String passwd;
+	public boolean validate(){
+		if(loginUrl.equals("")||formIdPath.equals("")||formPasswdPath.equals("")||formPath.equals("")||id.equals("")||passwd.equals("")){
+			return false;
+		}
+		return true;
+	}
 	public LoginData(String loginUrl, String formPath, String formIdPath,
-			String formPasswdPath) {
+			String formPasswdPath,String pPath) {
 		super();
 		this.loginUrl = loginUrl;
 		this.formIdPath = formIdPath;
 		this.formPasswdPath = formPasswdPath;
 		this.formPath = formPath;
+		this.pPath = pPath;
 	}
 	public LoginData(DBObject obj){
 		this.loginUrl = obj.get("loginURL").toString();
@@ -79,5 +90,6 @@ public class LoginData {
 		System.out.println("formPath : " + formPath);
 		System.out.println("formIDPath : " + formIdPath);
 		System.out.println("fromPasswdPath : " + formPasswdPath);
+		System.out.println("pPath : " + pPath);
 	}
 }

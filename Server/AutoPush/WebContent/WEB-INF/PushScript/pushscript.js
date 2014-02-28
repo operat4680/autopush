@@ -6,27 +6,27 @@ var casper = require("casper").create({
     height: 1480 },
     pageSettings: {
         loadImages:  true,        // The WebPage instance used by Casper will
-        loadPlugins: true,         // use these settings
+        loadPlugins: false,         // use these settings
         webSecurityEnabled: false
     },
     userAgent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
 });
-casper.options.waitTimeout = 5000;
+casper.options.waitTimeout = 3000;
 var urlList = JSON.parse(casper.cli.get(0).split("-_-").join("\""));
-var t = ((casper.cli.get(2)).split("-_-").join("\""));
-var transfer=t.split("|").join(" ");
 var param = {
     url : urlList.targetUrl,
     receiveUrl : casper.cli.get(1),
-    imgPath : transfer,
-    loginURL : casper.cli.get(3),
-    formPath : casper.cli.get(4),
-    idPath : casper.cli.get(5),
-    passwdPath : casper.cli.get(6),
-    id : casper.cli.get(7),
-    pwd : casper.cli.get(8)
+    imgPath : casper.cli.get(2),
+    userId : casper.cli.get(3),
+    loginURL : casper.cli.get(4),
+    formPath : casper.cli.get(5),
+    idPath : casper.cli.get(6),
+    passwdPath : casper.cli.get(7),
+    pPath : casper.cli.get(8),
+    id : casper.cli.get(9),
+    pwd : casper.cli.get(10)
 }
-
+var dataList = {};
 var req = {};
 //var filename = param.imgPath;
 if(param.loginURL!=null){
@@ -39,7 +39,7 @@ if(param.loginURL!=null){
   casper.then(function() {
      console.log('login location is ' + this.getCurrentUrl());
       var values ={};
-      // console.log(param.receiveUrl+' '+param.url + ' '+ param.loginURL + ' '+ param.idPath+' '+ param.passwdPath+' '+ param.id + ' '+ param.pwd);
+      console.log(param.receiveUrl+' '+param.url + ' '+ param.loginURL + ' '+ param.idPath+' '+ param.passwdPath+' '+ param.id + ' '+ param.pwd);
       values[param.idPath] = param.id;
       values[param.passwdPath] = param.pwd;
       // console.log(values[param.idPath]+','+values[param.passwdPath]);
@@ -49,12 +49,29 @@ if(param.loginURL!=null){
 
 
   casper.waitFor(function check() {
-      return this.getCurrentUrl() != param.url;
+      return this.getCurrentUrl() != param.loginURL;
   }, function then() {
       
       console.log('wait!!'+this.getCurrentUrl());
   }, function onTimeout(){
-      
+
+      casper.then(function() {
+        var values ={};
+        values[param.idPath] = param.id;
+        values[param.passwdPath] = param.pwd;
+        this.fill(param.formPath, values, false);
+      });
+      casper.then(function(){
+        casper.sendKeys(param.pPath,'',{keepFocus:true});
+        casper.sendKeys(param.pPath,casper.page.event.key.Enter);
+      });
+      casper.waitFor(function check() {
+         return this.getCurrentUrl() != param.loginURL;
+      },function then(){
+
+      },function timeout(){
+
+      });
   });
   casper.thenOpen(param.url);
 }
@@ -69,7 +86,6 @@ if(param.imgPath=='not'){
         var urlArray = urlList.urlList;
         var array = new Array();
         var i=0;
-        var test  = new Array('test','test2');
         var tempArray=new Array();
         // console.log('frame count: '+this.page.framesCount);
         casper.then(function(){
@@ -79,11 +95,15 @@ if(param.imgPath=='not'){
           }
            casper.eachThen(tempArray,function(response){
               console.log('Frame,Iframe List : ' +response.data)
-              this.thenOpen(response.data,function(response){
-                var temp = {};
-                temp['url'] = response.url;
-                temp['html'] = this.getHTML();
-                array.push(temp);
+              var temp = {};
+              temp['url'] = response.data;
+              this.thenOpen(response.data,function(res){
+                  // var temp = {};
+                  //temp['url'] = res.url;
+                  
+                  temp['html'] = this.getHTML();
+                  array.push(temp);
+                
               });
           });
         });
@@ -93,6 +113,7 @@ if(param.imgPath=='not'){
         casper.then(function(){
           req['htmlData'] = array;
           req['targetUrl'] = param.url;
+          req['userId'] = param.userId;
         });
         
         
@@ -127,6 +148,7 @@ if(param.imgPath=='not'){
               req['passwdPath']=param.passwdPath;
               req['id']=param.id;
               req['pwd']=param.pwd;
+              req['pPath']=param.pPath;
               casper.thenOpen(param.receiveUrl,
               {
                 method: "post",
@@ -140,17 +162,29 @@ if(param.imgPath=='not'){
             }
         });
     });
-    casper.then(function(){
-        casper.exit();
-    });
 }
 
-else{
+casper.thenOpen(param.receiveUrl,
+          {
+            method: "post",
+            data: {
+              'getData' : param.userId
+            }
+          },
+          function() {
+            
+          }).then(function(){
+
+            dataList = JSON.parse(this.getPageContent());
+
+
+          });;
+   
     
-    casper.then(function() {
+  casper.then(function() {
       var array = new Array();
       var tempArray = new Array();
-      var json = JSON.parse(param.imgPath);
+      var json = dataList;
       var pathList = json.pathList;
       var count=0;
       
@@ -161,33 +195,39 @@ else{
           }
           casper.eachThen(tempArray,function(response){
               console.log('in capture each : ' +response.data);
-              
+              temp = response.data;
               this.thenOpen(response.data,function(response){
                 var imgPath = pathList[count]['tagList'].split(',');
                 for(var i=0;i<imgPath.length;i++){
-                    if(this.visible(imgPath[i])){
-                        var inArray = {};
-                        inArray['url'] = response.url;
-                        inArray['tagPath'] = imgPath[i];
-                        try{
-                        inArray['imgData'] = this.captureBase64('jpg',imgPath[i],{quality:75});
-                        }catch(e){
+                   
+                    try{
+                      if(this.visible(imgPath[i])){
+                          var inArray = {};
+                          // inArray['url'] = response.url;
+                          inArray['url'] = temp;
+                          inArray['tagPath'] = imgPath[i];
+
+                          inArray['imgData'] = this.captureBase64('jpg',imgPath[i],{quality:75});
+                          
+                          // console.log(count+','+i+' : '+imgPath[i]);
+                          array.push(inArray);
+                          
+                      }
+                    }catch(e){
+                          console.log('error');
                          continue;
-                        }
-                        array.push(inArray);
-                        console.log(count+','+i+' : '+imgPath[i]);
-                    }       
+                    }     
                 }
+                
                 count++;
               });
              
           });
       });
-      // casper.then(function(){
-      //   casper.die("fail",1);
-      // });
       casper.then(function(){
          req['imgList'] = array;
+         req['userId'] = param.userId;
+         console.log('img array Size : '+ array.length);
          casper.thenOpen(param.receiveUrl,
           {
             method: "post",
@@ -196,7 +236,7 @@ else{
             }
           },
           function() {
-             // console.log( "ImageData post request has been sent.");
+             console.log( "ImageData post request has been sent.");
             
           });
 
@@ -206,43 +246,6 @@ else{
       
 
    });
-   //   old version 
-   // casper.then(function() {
-   //    var array = new Array();
-   //    var imgPath = param.imgPath.split(',');
-
-   //    for(var i=0;i<imgPath.length;i++){
-        
-   //      if(this.visible(imgPath[i])){
-   //        console.log(i+' : '+imgPath[i]);
-   //        var inArray = {};
-   //        inArray['tagPath'] = imgPath[i];
-   //        try{
-   //        inArray['imgData'] = this.captureBase64('png',imgPath[i],{quality:75});
-   //        }catch(e){
-   //          continue;
-   //        }
-   //        array.push(inArray);
-         
-   //      }
-   //    }
-   //    req['imgList'] = array;
-
-   //    casper.thenOpen(param.receiveUrl,
-   //        {
-   //          method: "post",
-   //          data: {
-   //             'imgList' : JSON.stringify(req)
-   //          }
-   //        },
-   //        function() {
-   //          // console.log( "POST3 request has been sent.");
-   //        });
-
-   // });
-
-
-
-}
+  
 
 casper.run();

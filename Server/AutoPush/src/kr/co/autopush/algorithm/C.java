@@ -21,5 +21,6 @@ public class C {
     public static char TAG_tbody = 'e';
     public static int CHILD_MIN_COUNT = 3;
     public static int NOTEXIST = 99999;
-    public static int SPAM_LIMIT = 2;    
+    public static int SPAM_LIMIT = 2;
+    public static double TREESIMIRARYTY = 0.5;
 }
