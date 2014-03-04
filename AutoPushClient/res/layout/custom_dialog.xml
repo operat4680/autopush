@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/layout_root" android:orientation="vertical"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:padding="10dp">
+	<TextView android:text="" android:id="@+id/webtexturl"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<TextView android:text="ID" android:id="@+id/TextView01"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<EditText android:id="@+id/webid" android:layout_width="200dip"
+		android:layout_height="35dip" android:inputType="text" android:layout_marginRight="10dp" />
+	<TextView android:text="Password" android:id="@+id/TextView02"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<EditText android:id="@+id/webpasswd" android:inputType="textPassword" android:layout_width="200dip"
+		android:layout_height="35dip"  />
+</LinearLayout>

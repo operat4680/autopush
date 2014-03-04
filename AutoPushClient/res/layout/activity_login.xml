@@ -1,0 +1,113 @@
+<ScrollView 
+   xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >   
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="531dp"
+        android:background="#ffffff"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".LoginActivity" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView3"
+            android:layout_centerHorizontal="true"
+            android:text="PushPushing"
+            android:textColor="#8313d2"
+            android:textSize="18pt" />
+
+        <EditText
+            android:id="@+id/edtText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/edtText1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:ems="10"
+            android:hint="PASSWORD"
+            android:password="true" >
+
+           
+        </EditText>
+
+        <EditText
+            android:id="@+id/edtText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/edtText2"
+            android:layout_below="@+id/textView1"
+            android:layout_marginTop="25dp"
+            android:ems="10"
+            android:hint="ID" />
+
+     
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="43dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="200dip"
+            android:maxWidth="120dip"
+            android:src="@drawable/icon_2" />
+
+   <TableLayout
+       android:id="@+id/tableLayout1"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignLeft="@+id/imageView3"
+       android:layout_below="@+id/checkBox1"
+       android:orientation="horizontal" >
+            
+       <TableRow >
+       </TableRow>
+   </TableLayout>
+
+   <Button
+       android:id="@+id/ImageButton2"
+       android:layout_width="110dp"
+       android:layout_height="36dp"
+       android:layout_alignBaseline="@+id/ImageButton1"
+       android:layout_alignBottom="@+id/ImageButton1"
+       android:layout_alignRight="@+id/edtText2"
+       android:textColor="#ffffff"
+       android:background="@drawable/btn_selector"
+       android:text="JOIN" />
+
+   <Button
+       android:id="@+id/ImageButton1"
+       android:layout_width="110dp"
+       android:layout_height="36dp"
+       android:layout_alignLeft="@+id/edtText2"
+       android:layout_alignTop="@+id/tableLayout1"
+       android:background="@drawable/btn_selector"
+       android:textColor="#ffffff"
+       android:text="LOGIN" />
+
+   <CheckBox
+       android:id="@+id/checkBox1"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignRight="@+id/edtText2"
+       android:layout_below="@+id/edtText2"
+       android:checked="true"
+       android:text="Auto Login"
+       android:textColor="#aaaaaa"
+       android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</ScrollView>

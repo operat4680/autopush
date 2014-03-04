@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
+     <EditText android:id="@+id/texturl" android:inputType="textUri" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="http://www.naver.com"/>
+  	</LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+  		<ProgressBar android:id="@+id/webprogressbar"
+  		   style="?android:attr/progressBarStyleHorizontal"
+  		   android:layout_width="fill_parent"
+  		   android:layout_height="wrap_content"
+  		   android:max="100"
+  		    />
+        <Button android:id="@+id/resist" 
+            		android:layout_width="fill_parent" 
+            		android:layout_height="35dp" 
+            		android:text="등록"  android:background="@drawable/btn_selector"
+                    android:textColor="#ffffff" />
+     	<WebView 
+         android:id="@+id/webview" 
+         android:layout_width="fill_parent" 
+         android:layout_height="fill_parent" 
+         android:focusable="true"
+         />
+     </LinearLayout>
+</LinearLayout>

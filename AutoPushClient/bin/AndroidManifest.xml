@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="kr.co.autopush"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="14" />
+
+    <application
+        android:allowBackup="true"
+        android:largeHeap="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        >
+       <activity android:name="kr.co.autopush.client.LoginActivity" 
+            android:label="@string/app_name" 
+            android:launchMode="singleTask"
+            
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="kr.co.autopush.client.ImageActivity" android:launchMode="singleTask"></activity>
+        <activity android:name="kr.co.autopush.webview.WebActivity" android:launchMode="singleTask"></activity>
+        <activity android:name="kr.co.autopush.client.JoinActivity" android:launchMode="singleTask"></activity>
+        <activity android:name="kr.co.autopush.client.TaskActivity" android:launchMode="singleTask"></activity>
+        <activity android:name="kr.co.autopush.client.InfoActivity" android:launchMode="singleTask"></activity>
+         <activity android:name="kr.co.autopush.client.ZoomActivity" android:launchMode="singleTask"></activity>
+          <activity android:name="kr.co.autopush.client.RegistActivity" android:launchMode="singleTask"></activity>
+        <receiver
+            android:name="kr.co.autopush.gcm.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="kr.co.autopush.gcm" />
+            </intent-filter>
+        </receiver>
+        <service android:name="kr.co.autopush.gcm.GcmIntentService" />
+        
+    </application>
+    <uses-permission 
+        android:name="android.permission.INTERNET"
+        />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <permission android:name="kr.co.autopush.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="kr.co.autopush.permission.C2D_MESSAGE" />
+
+</manifest>
