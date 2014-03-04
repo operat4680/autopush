@@ -1,4 +1,4 @@
-package kr.co.autopush.algorithm;
+package kr.co.autopush.tabledetection;
 
 import java.util.ArrayList;
 
@@ -19,11 +19,19 @@ public class APTableTagProcessor {
 				size--; continue;
 			}
 				
-			if(APFilter.textFilter(child.text()).length()<1) continue;
-			textCount++;
+			if(APFilter.textFilter(child.text()).length()<1){	
+				ArrayList<Element> temp = APTraverser.preOrderTraverse(child);
+				for(Element e : temp) {
+					if(e.tagName().equals("img") && APFilter.textFilter(e.attr("alt")).length() > 0) {
+						textCount++;
+						break;
+					}						
+				}				
+				continue;					
+			} else 	textCount++;
 		}
 		
-		if(tag.parent().className().equals("special")) System.out.println(">> " + textCount/size);
+		if(tag.parent().className().equals("newss")) System.out.println(">> " + textCount +" ::::::" +size);
 		
 		if((float)textCount/size >= 0.33) return true;
 		return false;		

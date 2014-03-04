@@ -1,4 +1,4 @@
-package kr.co.autopush.algorithm;
+package kr.co.autopush.tabledetection;
 
 import java.util.ArrayList;
 

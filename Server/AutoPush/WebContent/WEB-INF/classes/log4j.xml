@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"> 
+
+<logger name="kr.co.autopush" additivity="false">
+	<level value="INFO"/>
+	<appender-ref ref="file"/>
+</logger>
+<!-- Console -->
+<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+<layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="%d %5p %c{1} - %m%n" />
+</layout>
+</appender>
+<!-- File -->
+<appender name="file" class="org.apache.log4j.DailyRollingFileAppender">
+<param name="DatePattern" value=".yyyyMMdd" />
+<param name="Encoding" value="UTF-8" />
+<param name="File" value="D:/log/pushlog.log" />
+<param name="Append" value="true" />
+<layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="%d %5p %c{1} - %m%n" />
+</layout>
+</appender>
+
+
+<!-- root -->
+<root>
+<priority value="INFO"/>
+</root>
+</log4j:configuration>

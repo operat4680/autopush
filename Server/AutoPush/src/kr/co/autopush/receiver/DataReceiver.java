@@ -12,10 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import kr.co.autopush.algorithm.APTableDetector;
 import kr.co.autopush.db.MongoDAO;
+import kr.co.autopush.tabledetection.APTableDetector;
 import kr.co.autopush.util.FileWriteUtil;
 import kr.co.autopush.util.JsonUtil;
+
 
 
 

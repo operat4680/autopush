@@ -30,7 +30,7 @@ public class PushSchedulerServlet extends HttpServlet{
 				.withIdentity("trigger", "group1")
 				.startNow()
 				.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-						.withIntervalInSeconds(10)	
+						.withIntervalInSeconds(5)	
 						.repeatForever())            
 						.build();
 		JobDetail dispatchJob = org.quartz.JobBuilder.newJob(DispatchJob.class)
@@ -40,7 +40,7 @@ public class PushSchedulerServlet extends HttpServlet{
 				.withIdentity("trigger2", "group1")
 				.startNow()
 				.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-						.withIntervalInSeconds(60)	
+						.withIntervalInSeconds(30)	
 						.repeatForever())            
 						.build();
 

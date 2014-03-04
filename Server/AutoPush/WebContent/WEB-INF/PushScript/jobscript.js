@@ -15,7 +15,7 @@ var casper = require("casper").create({
     },
     userAgent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
 });
-casper.options.waitTimeout = 3000;
+casper.options.waitTimeout = 2000;
 
 var input = {
   receiveUrl : casper.cli.get(0),
@@ -39,9 +39,7 @@ casper.thenOpen(input.receiveUrl,
             }
           }
 ).then(function(){
-  // if(this.getPageContent()=='error')casper.exit();
   data = JSON.parse(this.getPageContent());
-  // console.log('wowowowowwo : '+data.taskList[3]._id.$oid);
  
 });
 casper.then(function(){
@@ -62,11 +60,16 @@ casper.then(function(){
       var temp={};
       if(loginURL!=null){
           casper.thenOpen(loginURL).then(function() {
+             console.log(url+' '+loginURL);
              console.log('login location is ' + this.getCurrentUrl());
               var values ={};
               values[idPath] = id;
               values[passwdPath] =pwd;
+              try{
               this.fill(formPath, values, true);
+              }catch(e){
+                
+              }
           }).waitFor(function check() {
               return this.getCurrentUrl() != loginURL;
           }, function then() {
@@ -76,16 +79,23 @@ casper.then(function(){
               var values ={};
               values[idPath] = id;
               values[passwdPath] =pwd;
+              try{
               this.fill(formPath, values, false);
+              }catch(e){
+                //do nothing
+              }
               }).then(function(){
+                  try{
                   casper.sendKeys(pPath,'',{keepFocus:true});
                   casper.sendKeys(pPath,casper.page.event.key.Enter);
+                  }catch(e){
+          
+                  }
               }).waitFor(function check() {
                    return this.getCurrentUrl() != loginURL;
               }, function then() {
 
               }, function onTimeout(){
-             
               
               });
               
@@ -99,7 +109,7 @@ casper.then(function(){
               try{
                if(this.visible(tagPath)){
                 // this.captureSelector('D://casperjs/1'+count+'.jpg',tagPath);
-                temp['imgData'] = this.captureBase64('jpg',tagPath,{quality:75});
+                temp['imgData'] = this.captureBase64('jpg',tagPath,{quality:30});
                 }
                 else{
                   visibleException =new UserException("nonVisible");
@@ -107,15 +117,10 @@ casper.then(function(){
                 } 
               }catch(e){
                 console.log('capture Error');
-                if(e.message=='nonVisible'){
-                  fs.write(logfilename,'nonVisible  '+'count : '+ count+' url : ' + url+"\ttagPath : "+ tagPath+"\n",'a');
-                }
-                else{
-                  fs.write(logfilename,e.message+'url : ' + url+"\ttagPath : "+ tagPath+"\n",'a');
-                }
 
               }
               temp['id'] = taskId;
+              temp['tagPath']=tagPath;
           });
       }
       else{
@@ -123,12 +128,12 @@ casper.then(function(){
               // console.log('hi2');
               // console.log(url);
               // console.log(taskId);
-              console.log(tagPath);
+              // console.log(tagPath);
               temp['html'] = this.getHTML();
               try{
                 if(this.visible(tagPath)){
                 // this.captureSelector('D://casperjs/1'+count+'.jpg',tagPath);
-                temp['imgData'] = this.captureBase64('jpg',tagPath,{quality:75});
+                temp['imgData'] = this.captureBase64('jpg',tagPath,{quality:30});
                 }
                 else{
                   visibleException =new UserException("nonVisible");
@@ -136,14 +141,9 @@ casper.then(function(){
                 } 
               }catch(e){
                 console.log('capture Error');
-                if(e.message=='nonVisible'){
-                  fs.write(logfilename,'nonVisible  '+'count : '+ count+' url : ' + url+"\ttagPath : "+ tagPath+"\n",'a');
-                }
-                else{
-                  fs.write(logfilename,e.message+'url : ' + url+"\ttagPath : "+ tagPath+"\n",'a');
-                }
               }
               temp['id'] = taskId;
+              temp['tagPath']=tagPath;
           });
       }
       casper.then(function(){
@@ -155,9 +155,22 @@ casper.then(function(){
 });
 casper.then(function(){
   console.log('length : '+ array.length);
-  req['taskData'] = array;
-  alldata = JSON.stringify(req);
-  casper.thenOpen(input.receiveUrl,
+  console.log('input : ' + input.queueId);
+  casper.then(function(){
+    req['taskData'] = array;
+  });
+  
+  casper.then(function(){
+      alldata = JSON.stringify(req);
+      // casper.waitFor(function asdf() {
+      //         return alldata!=null;
+      //     }, function then() {
+
+      //     }, function onTimeout(){
+      //         console.log('timeout!');
+      // });
+
+      casper.thenOpen(input.receiveUrl,
           {
             method: "post",
             data: {
@@ -166,39 +179,15 @@ casper.then(function(){
                 'resultData' : alldata
             }
           }
-  ).then(function(){
-    console.log(alldata.length);
-    console.log('exit :');
+      ).then(function(){
+        console.log(alldata.length);
+        console.log('exit :');
+        casper.exit();
+      });  
   });
 
+ 
+
 });
-// if(param.loginURL!=null){
-//   casper.start(param.loginURL, function() {
-//       console.log(param.loginURL + ' Home was loaded');
-//   });
-//   casper.then(function() {
-//      console.log('login location is ' + this.getCurrentUrl());
-//       var values ={};
-//       values[param.idPath] = param.id;
-//       values[param.passwdPath] = param.pwd;
-//       // console.log(values[param.idPath]+','+values[param.passwdPath]);
-//       this.fill(param.formPath, values, true);
-//     });
-  
 
-
-//   casper.waitFor(function check() {
-//       return this.getCurrentUrl() != param.url;
-//   }, function then() {
-//       console.log('wait!!'+this.getCurrentUrl());
-//   }, function onTimeout(){
-      
-//   });
-//   casper.thenOpen(param.url);
-// }
-// else{
-//   casper.start(param.url, function() {
-//       console.log('Home was loaded2');
-//   });
-// }
 casper.run();

@@ -12,9 +12,11 @@ import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CasperRunJob implements Job {
-
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		try {
@@ -42,8 +44,9 @@ public class CasperRunJob implements Job {
 			int exitCode = proc.waitFor();
 			proc.destroy();
 			long end = System.currentTimeMillis();
+			logger.info( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
 			System.out.println( "실행 시간 : " + ( end - start )/1000.0 + "exit Code : "+ exitCode);
-			MongoDAO.deleteQueueById(id);
+//			MongoDAO.deleteQueueById(id);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

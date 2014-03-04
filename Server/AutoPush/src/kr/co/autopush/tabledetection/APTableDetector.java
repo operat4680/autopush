@@ -1,4 +1,4 @@
-package kr.co.autopush.algorithm;
+package kr.co.autopush.tabledetection;
 
 
 
@@ -64,8 +64,10 @@ public class APTableDetector {
 	                }
 	            }
 	        }
+	        if(resList.size() > 100) 
+	        	resList = APFilter.filtering(resList);
 	        
-	        if(resList.size()!=0){
+	        if(resList.size()>0){
 	        	System.out.println("result length : "+ resList.size());
 		        for(Element node : resList) {
 		        	  
@@ -81,36 +83,43 @@ public class APTableDetector {
 	    JSONObject result = new JSONObject();
 	    result.put("pathList", urlArray);
 		return result.toString();
-	//        casper.connect();
-	        
-	        /*below code is just testing code for change detecting.*/
-	//        System.out.println(":::::::::::::::::::::::::::::::::::");
-	//        System.out.print("select node index :: ");
-	//        Scanner scan = new Scanner(System.in);
-	//        int index = scan.nextInt();
-	//        if(index == -1) return;
-	//        Element select_node = resList.get(index);
-	//        System.out.println("select index  :: " + index);
-	//        System.out.println(">> file saving now.");
-	//        BufferedWriter writer;
-	//        try {
-	//        	writer = new BufferedWriter(new FileWriter(new File("./test.txt")));
-	//        	writer.write(TestMain.getPath(select_node)+"\n");
-	//        	writer.write(select_node.children().size()+"\n");        	
-	//        	for(Element child : select_node.children())
-	//        		writer.write(child.text().replaceAll("\\d", "")+"\n");
-	//        	if(writer != null) writer.close();
-	//		} catch (Exception e) {
-	//			// TODO: handle exception
-	//		}
-	//        System.out.println(">> file saved now.");
-	        /*=======================================================*/
-	       
-    	
     }
+//    public String getPath(Element e) {
+//		String result = "";
+//		Element temp = e;
+//		while (!(temp.tagName().equals("body"))) {
+//			if (!temp.id().equals("")) {
+//				if (result.equals("")) {
+//					result = temp.tagName() + "#" + temp.id();
+//				} else {
+//					result = temp.tagName() + "#" + temp.id() + " " + result;
+//				}
+//				break;
+//			} else if (!temp.className().equals("")) {
+//				String name = temp.className().split(" ")[0];
+//				int index =	temp.elementSiblingIndex();
+//				String i = index==0?"":":nth-child("+(index+1)+")";
+//				if (result.equals("")) {					
+//					result = temp.tagName() + "." + name + i;
+//				} else {
+//					result = temp.tagName() + "." + name + i + " " + result;
+//				}
+//			} else {
+//				int index =	temp.elementSiblingIndex();
+//				String i = index==0?"":":nth-child("+(index+1)+")";
+//				if (result.equals("")) {
+//					result = temp.tagName() + i + result;
+//				} else {
+//					result = temp.tagName() + i + " " + result;
+//				}
+//			}
+//			temp = temp.parent();
+//		}
+//		return result;
+//	}
     public String getPath(Element e) {
-		String result = "";
-		Element temp = e;
+	    String result = "";
+		Element temp = e;		
 		while (!(temp.tagName().equals("body"))) {
 			if (!temp.id().equals("")) {
 				if (result.equals("")) {
@@ -119,27 +128,27 @@ public class APTableDetector {
 					result = temp.tagName() + "#" + temp.id() + " " + result;
 				}
 				break;
-			} else if (!temp.className().equals("")) {
-				String name = temp.className().split(" ")[0];
-				int index =	temp.elementSiblingIndex();
-				String i = index==0?"":":nth-child("+(index+1)+")";
-				if (result.equals("")) {					
-					result = temp.tagName() + "." + name + i;
-				} else {
-					result = temp.tagName() + "." + name + i + " " + result;
-				}
 			} else {
-				int index =	temp.elementSiblingIndex();
-				String i = index==0?"":":nth-child("+(index+1)+")";
+				String selector = temp.tagName();
+				while(temp.previousElementSibling() != null) {
+					String tagName =  temp.previousElementSibling().tagName();
+					if(tagName.equals("noscript")){
+						tagName = "*";
+					}
+					selector = tagName+"+"+ selector;
+					temp = temp.previousElementSibling();
+				}
+				
 				if (result.equals("")) {
-					result = temp.tagName() + i + result;
+					result = selector + result;
 				} else {
-					result = temp.tagName() + i + " " + result;
+					result = selector + " " + result;
 				}
 			}
 			temp = temp.parent();
+			if(temp==null)break;
 		}
 		return result;
-	}
+    }
 }
 

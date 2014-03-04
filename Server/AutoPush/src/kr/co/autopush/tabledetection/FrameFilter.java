@@ -1,8 +1,10 @@
-package kr.co.autopush.algorithm;
+package kr.co.autopush.tabledetection;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,11 +55,23 @@ public class FrameFilter {
 		if(url.equals("about:blank"))return url;
 		if(url.startsWith("http") || url.startsWith("https")) return url;
 		else {
-//			if(url.startsWith("/")){
-//				url = url.substring(1);
-//			}
+			if(url.startsWith("/")){
+				Pattern pa =null;
+				if(this.url.startsWith("https://")){
+				pa = Pattern.compile("^(https?):\\/\\/([^:\\/\\s]+)(:([^\\/]*))?((\\/[^\\s/\\/]+)*)?\\/([^#\\s\\?]*)(\\?([^#\\s]*))?(#(\\w*))?$");
+				}
+				else{
+					pa = Pattern.compile("^(http?):\\/\\/([^:\\/\\s]+)(:([^\\/]*))?((\\/[^\\s/\\/]+)*)?\\/([^#\\s\\?]*)(\\?([^#\\s]*))?(#(\\w*))?$");
+				}
+				Matcher mc = pa.matcher(this.url);
+				if(mc.matches()){
+					String returnUrl=mc.group(1)+"://"+mc.group(2)+url;
+					return returnUrl;
+				}
+				
+				}
 			return this.url+url;
-		}
+	 }
 	}
 	private String getJsonUrlList() throws JSONException{
 		JSONObject obj=new JSONObject();

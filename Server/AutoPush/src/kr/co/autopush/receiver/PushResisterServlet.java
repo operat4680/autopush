@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.co.autopush.algorithm.APTableDetector;
-import kr.co.autopush.algorithm.FindForm;
-import kr.co.autopush.algorithm.FrameFilter;
 import kr.co.autopush.bean.LoginData;
 import kr.co.autopush.constant.Constant;
 import kr.co.autopush.db.MongoDAO;
+import kr.co.autopush.formfind.FindForm;
+import kr.co.autopush.tabledetection.APTableDetector;
+import kr.co.autopush.tabledetection.FrameFilter;
 import kr.co.autopush.util.StreamGobbler;
 import kr.co.autopush.util.UserException;
 
@@ -80,7 +80,7 @@ public class PushResisterServlet extends HttpServlet {
 							command.add(json.getString("pwd"));
 						}
 					}
-					System.out.println(command.toString());
+//					System.out.println(command.toString());
 					
 					runProcess(command);
 					

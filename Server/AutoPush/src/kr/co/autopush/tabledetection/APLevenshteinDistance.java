@@ -1,4 +1,5 @@
-package kr.co.autopush.algorithm;
+package kr.co.autopush.tabledetection;
+
 
 public class APLevenshteinDistance {
 	private static int minimum(int a, int b, int c) {

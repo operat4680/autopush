@@ -6,7 +6,9 @@ package kr.co.autopush.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.co.autopush.bean.PushData;
 import kr.co.autopush.constant.Constant;
+import kr.co.autopush.tabledetection.APDataProcessor;
 
 import org.bson.types.ObjectId;
 import org.json.JSONException;
@@ -83,6 +85,8 @@ public class MongoDAO {
 				break;
 			}	
 		}
+		APDataProcessor p = new APDataProcessor(html, tagPath);
+		List<String> textList = p.getLines();
 		BasicDBObject insert = new BasicDBObject();
 		//insert.put("html", html);
 		insert.put("userId", new ObjectId(obj.get("userId").toString()));
@@ -95,6 +99,7 @@ public class MongoDAO {
 		insert.put("isNew", false);
 		insert.put("error", 0);
 		insert.put("push", true);
+		insert.put("textList", textList);
 		if(temp.get("loginURL")!=null){
 			insert.put("loginURL",temp.get("loginURL").toString());
 			insert.put("formPath",temp.get("formPath").toString());
@@ -195,8 +200,8 @@ public class MongoDAO {
 	public static List<DBObject> checkQueue(){
 		DB db = MongoDB.INSTANCE.getDB();
 		DBCollection coll = db.getCollection("queue");
-//		BasicDBObject query = new BasicDBObject("$ne",new BasicDBObject("state","lock"));
-		BasicDBObject query = new BasicDBObject(new BasicDBObject());
+		BasicDBObject query = new BasicDBObject("state",new BasicDBObject("$ne","close")).append("state", new BasicDBObject("$ne","lock"));
+//		BasicDBObject query = new BasicDBObject(new BasicDBObject());
 		DBCursor cursor = coll.find(query); 
 		List<DBObject> list = (List<DBObject>)cursor.toArray();
 		return list;
@@ -264,12 +269,25 @@ public class MongoDAO {
 				DBObject t = task.findOne(query,new BasicDBObject("limitTime",1));
 				if(t!=null){
 					int time = Integer.parseInt(t.get("limitTime").toString());
-					DBObject update = new BasicDBObject("$set",new BasicDBObject("remainTime",time));
+					DBObject update=null;
+//					if(obj.get("textList")!=null){
+//						
+//						update = new BasicDBObject("$set",in);
+//					}
+//					else{
+//						update = new BasicDBObject("$set",new BasicDBObject("remainTime",time));
+//					}
+					
+					BasicDBObject in;
+					in = new BasicDBObject("imgData",obj.get("imgData").toString()).append("textList", obj.get("textList")).append("remainTime",time);
+					update = new BasicDBObject("$set",in);
+					if(Integer.parseInt(obj.get("textstatus").toString())==1){
+						in.append("isNew", true);
+					}
 					task.update(query,update);
 				}
 			}
 		}
-		
 	}
 	public static boolean insertUser(DBObject obj){
 		DB db = MongoDB.INSTANCE.getDB();
@@ -358,6 +376,57 @@ public class MongoDAO {
 		}
 		DBObject update = new BasicDBObject("$set",json);
 		task.update(query, update);
+		
+	}
+	public static List<String> getTextList(String id) {
+		DB db = MongoDB.INSTANCE.getDB();
+		DBCollection task = db.getCollection("task");
+		DBObject query = new BasicDBObject("_id",new ObjectId(id));
+		DBObject result = task.findOne(query,new BasicDBObject("textList",1));
+		BasicDBList list = (BasicDBList)result.get("textList");
+		List<String> resultList = new ArrayList<String>();
+		for(int i=0;i<list.size();i++){
+			resultList.add((String)list.get(i));
+		}
+		return resultList;
+		
+	}
+	public static List<String> getKeyList(String id){
+		DB db = MongoDB.INSTANCE.getDB();
+		DBCollection task = db.getCollection("task");
+		DBObject query = new BasicDBObject("_id",new ObjectId(id));
+		DBObject result = task.findOne(query,new BasicDBObject("keywordList",1));
+		BasicDBList list = (BasicDBList)result.get("keywordList");
+		List<String> resultList = new ArrayList<String>();
+		if(list!=null){
+			for(int i=0;i<list.size();i++){
+				resultList.add((String)list.get(i));
+			}
+		}
+		return resultList;
+	}
+	public static PushData getPushById(String id) {
+		DB db = MongoDB.INSTANCE.getDB();
+		DBCollection task = db.getCollection("task");
+		PushData push = new PushData();
+		DBObject query = new BasicDBObject("_id",new ObjectId(id)).append("push",true);
+		DBObject result = task.findOne(query,new BasicDBObject("userId",1).append("_id", 0).append("name", 1));
+		if(result!=null){
+			push.setName(result.get("name").toString());
+			result.removeField("name");
+			task = db.getCollection("user");
+			System.out.println("");
+			query = new BasicDBObject("_id",new ObjectId(result.get("userId").toString()));
+			DBObject user = task.findOne(query,new BasicDBObject("_id",0).append("userId", 1).append("gcmId", 1));
+			if(user!=null){
+				push.setUserId(user.get("userId").toString());
+				push.setGcmKey(user.get("gcmId").toString());
+			}
+			return push;
+		}
+		else{
+			return null;
+		}
 		
 	}
 	

@@ -16,15 +16,13 @@ public class Constant {
 	public static final int QUEUEMAXSIZE = 20;
 	
 	//test eclipse
-	public static final String SCRIPTPATH = "D:/github/Server/AutoPush/WebContent/WEB-INF/PushScript/pushscript.js";
-	public static final String JOBSCRIPTPATH = "D:/github/Server/AutoPush/WebContent/WEB-INF/PushScript/jobscript.js";
-	public static final String IMAGEPATH = "D:/github/Server/AutoPush/WebContent/image/1.jpg";
+//	public static final String SCRIPTPATH = "D:/github/Server/AutoPush/WebContent/WEB-INF/PushScript/pushscript.js";
+//	public static final String JOBSCRIPTPATH = "D:/github/Server/AutoPush/WebContent/WEB-INF/PushScript/jobscript.js";
 	
 	
 	//web server
 	
-//	public static final String SCRIPTPATH = "D:/Tomcat7.0/webapps/AutoPush/WEB-INF/PushScript/pushscript.js";
-//	public static final String IMAGEPATH = "D:/Tomcat7.0/webapps/AutoPush/image/1.jpg";
-//	
+	public static final String SCRIPTPATH = "D:/Tomcat7.0/webapps/AutoPush/WEB-INF/PushScript/pushscript.js";
+	public static final String JOBSCRIPTPATH = "D:/Tomcat7.0/webapps/AutoPush/WEB-INF/PushScript/jobscript.js";
 //	
 }
